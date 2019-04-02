@@ -1,0 +1,8 @@
+group 'org.bensnonorg.musicmachine'
+version '1.0'
+
+
+
+dependencies {
+    compile libraries.jmeMin
+}

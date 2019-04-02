@@ -1,0 +1,57 @@
+plugins {
+    id 'java'
+    id 'org.jetbrains.kotlin.jvm' version '1.3.21'
+}
+group 'org.bensnonorg.musicmachine'
+version '1.0'
+
+sourceCompatibility = JavaVersion.VERSION_11
+def jme3 = [v: '3.2.2-stable', g: 'org.jmonkeyengine']
+allprojects {
+//    apply plugin: 'java'
+    apply plugin: 'kotlin'
+    repositories {
+        jcenter()
+        mavenCentral()
+//        maven { url "http://dl.bintray.com/jmonkeyengine/org.jmonkeyengine" }
+    }
+    dependencies{
+        implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+        implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.1.1"
+        implementation "org.jetbrains.kotlin:kotlin-reflect:1.3.21"
+    }
+    compileKotlin {
+        kotlinOptions {
+            jvmTarget = "1.8"
+        }
+    }
+    compileTestKotlin {
+        kotlinOptions {
+            jvmTarget = "1.8"
+        }
+    }
+}
+ext.libraries = [
+        jmeMin: [
+                "${jme3.g}:jme3-core:${jme3.v}",
+                "${jme3.g}:jme3-bullet:${jme3.v}"
+        ]
+]
+dependencies {
+    implementation fileTree(dir: 'lib', include: ['*.jar'])
+    compile project(':base')
+    compile project(':theapp')
+    compile libraries.jmeMin
+//    compile project(':base')
+    implementation "${jme3.g}:jme3-desktop:${jme3.v}"
+    implementation "${jme3.g}:jme3-lwjgl3:${jme3.v}"
+    compile "${jme3.g}:jme3-plugins:${jme3.v}"
+    //compile "${jme3.g}:jme3-effects:${jme3.v}"
+    // compile "${jme3.g}:jme3-niftygui:${jme3.v}"
+    //compile "${jme3.g}:jme3-terrain:${jme3.v}"
+    compile "${jme3.g}:jme3-jogg:${jme3.v}"
+    runtime "${jme3.g}:jme3-bullet-native:${jme3.v}"
+    //runtime "${jme3.g}:jme3-examples:${jme3.v}"
+    //runtime "${jme3.g}:jme3-testdata:${jme3.v}"
+
+}
