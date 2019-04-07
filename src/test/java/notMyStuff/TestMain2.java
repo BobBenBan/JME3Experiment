@@ -21,35 +21,9 @@ import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
 
 public class TestMain2 extends SimpleApplication {
-	public static void main(String[] args) {
-		TestMain2 app = new TestMain2();
-		app.start();
-	}
-	
 	private Node shootables;
 	private Node inventory;
 	private Vector3f oldPosition;
-	
-	@Override
-	public void simpleInitApp() {
-		initCrossHairs();
-		initKeys();
-		shootables = new Node("Shootables");
-		inventory = new Node("Inventory");
-		guiNode.attachChild(inventory);
-		// add a light to the HUD so we can see the robot
-		DirectionalLight sun = new DirectionalLight();
-		sun.setDirection(new Vector3f(0, 0, -1.0f));
-		guiNode.addLight(sun);
-		rootNode.attachChild(shootables);
-		shootables.attachChild(makeCube("a Dragon", -2f, 0f, 1f));
-		shootables.attachChild(makeCube("a tin can", 1f, -2f, 0f));
-		shootables.attachChild(makeCube("the Sheriff", 0f, 1f, -2f));
-		shootables.attachChild(makeCube("the Deputy", 1f, 0f, -4f));
-		shootables.attachChild(makeFloor());
-		shootables.attachChild(makeCharacter());
-	}
-	
 	private ActionListener actionListener = new ActionListener() {
 		public void onAction(String name, boolean keyPressed, float tpf) {
 			if (name.equals("Shoot") && !keyPressed) {
@@ -87,6 +61,43 @@ public class TestMain2 extends SimpleApplication {
 		}
 	};
 	
+	public static void main(String[] args) {
+		TestMain2 app = new TestMain2();
+		app.start();
+	}
+	
+	@Override
+	public void simpleInitApp() {
+		initCrossHairs();
+		initKeys();
+		shootables = new Node("Shootables");
+		inventory = new Node("Inventory");
+		guiNode.attachChild(inventory);
+		// add a light to the HUD so we can see the robot
+		DirectionalLight sun = new DirectionalLight();
+		sun.setDirection(new Vector3f(0, 0, -1.0f));
+		guiNode.addLight(sun);
+		rootNode.attachChild(shootables);
+		shootables.attachChild(makeCube("a Dragon", -2f, 0f, 1f));
+		shootables.attachChild(makeCube("a tin can", 1f, -2f, 0f));
+		shootables.attachChild(makeCube("the Sheriff", 0f, 1f, -2f));
+		shootables.attachChild(makeCube("the Deputy", 1f, 0f, -4f));
+		shootables.attachChild(makeFloor());
+		shootables.attachChild(makeCharacter());
+	}
+	
+	private void initCrossHairs() {
+		setDisplayStatView(false);
+		guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
+		BitmapText ch = new BitmapText(guiFont, false);
+		ch.setSize(guiFont.getCharSet().getRenderedSize() * 2);
+		ch.setText("+");
+		ch.setLocalTranslation(
+				settings.getWidth() / 2f - ch.getLineWidth() / 2, settings.getHeight() / 2f + ch.getLineHeight() / 2,
+				0);
+		guiNode.attachChild(ch);
+	}
+	
 	private void initKeys() {
 		inputManager.addMapping("Shoot",
 				new KeyTrigger(KeyInput.KEY_SPACE),
@@ -112,18 +123,6 @@ public class TestMain2 extends SimpleApplication {
 		mat1.setColor("Color", ColorRGBA.Gray);
 		floor.setMaterial(mat1);
 		return floor;
-	}
-	
-	private void initCrossHairs() {
-		setDisplayStatView(false);
-		guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
-		BitmapText ch = new BitmapText(guiFont, false);
-		ch.setSize(guiFont.getCharSet().getRenderedSize() * 2);
-		ch.setText("+");
-		ch.setLocalTranslation(
-				settings.getWidth() / 2f - ch.getLineWidth() / 2, settings.getHeight() / 2f + ch.getLineHeight() / 2,
-				0);
-		guiNode.attachChild(ch);
 	}
 	
 	private Spatial makeCharacter() {

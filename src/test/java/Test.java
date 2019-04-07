@@ -14,15 +14,16 @@ public class Test implements Savable {
 		Savable[] savables = this.tests.toArray(Savable[]::new);
 		for (var en : AnEnum.values()) {
 			System.out.println(en);
-			if(en.aClass.isInstance(a)){
+			if (en.aClass.isInstance(a)) {
 				System.out.println("yay");
 			}
 		}
 	}
 	
 	public static void main(String[] args) {
-//		org.bensnonorg.musicmachine.base.Test.test();
+//		org.bensnonorg.musicmachine.musicmachine.Test.test();
 	}
+	
 	@Override
 	public void write(JmeExporter ex) throws IOException {
 	}

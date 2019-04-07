@@ -24,26 +24,9 @@ import com.jme3.texture.Texture.WrapMode;
 /**
  * Example 12 - how to give objects physical properties so they bounce and fall.
  *
- * @author base code by double1984, updated by zathras
+ * @author musicmachine code by double1984, updated by zathras
  */
 public class TestWorld extends SimpleApplication {
-	private CapsuleCollisionShape shape;
-	
-	public static void main(String[] args) {
-		TestWorld app = new TestWorld();
-		app.start();
-	}
-	
-	/**
-	 * Prepare the Physics Application State (jBullet)
-	 */
-	private BulletAppState bulletAppState;
-	/**
-	 * Prepare Materials
-	 */
-	private Material wall_mat;
-	private Material stone_mat;
-	private Material floor_mat;
 	private static final Box box;
 	private static final Sphere sphere;
 	private static final Box floor;
@@ -64,8 +47,30 @@ public class TestWorld extends SimpleApplication {
 		floor = new Box(400f, 0.1f, 400f);
 		floor.scaleTextureCoordinates(new Vector2f(3, 6));
 	}
-	@Override
-	public void simpleUpdate(float tpf) {
+	private CapsuleCollisionShape shape;
+	/**
+	 * Prepare the Physics Application State (jBullet)
+	 */
+	private BulletAppState bulletAppState;
+	/**
+	 * Prepare Materials
+	 */
+	private Material wall_mat;
+	private Material stone_mat;
+	private Material floor_mat;
+	/**
+	 * Every time the shoot action is triggered, a new cannon ball is produced.
+	 * The ball is set up to fly from the camera position in the camera direction.
+	 */
+	private ActionListener actionListener = (name, keyPressed, tpf) -> {
+		if (name.equals("shoot") && !keyPressed) {
+			makeCannonBall();
+		}
+	};
+
+	public static void main(String[] args) {
+		TestWorld app = new TestWorld();
+		app.start();
 	}
 	
 	@Override
@@ -101,15 +106,9 @@ public class TestWorld extends SimpleApplication {
 		initCrossHairs();
 	}
 	
-	/**
-	 * Every time the shoot action is triggered, a new cannon ball is produced.
-	 * The ball is set up to fly from the camera position in the camera direction.
-	 */
-	private ActionListener actionListener = (name, keyPressed, tpf) -> {
-		if (name.equals("shoot") && !keyPressed) {
-			makeCannonBall();
-		}
-	};
+	@Override
+	public void simpleUpdate(float tpf) {
+	}
 	
 	/**
 	 * Initialize the materials used in this scene.
@@ -136,21 +135,6 @@ public class TestWorld extends SimpleApplication {
 	}
 	
 	/**
-	 * Make a solid floor and add it to the scene.
-	 */
-	private void initFloor() {
-		Geometry floor_geo = new Geometry("Floor", floor);
-		floor_geo.setMaterial(floor_mat);
-		floor_geo.setLocalTranslation(0, -0.1f, 0);
-		this.rootNode.attachChild(floor_geo);
-		/* Make the floor physical with mass 0.0f! */
-		RigidBodyControl floor_phy = new RigidBodyControl(0.0f);
-		floor_geo.addControl(floor_phy);
-		bulletAppState.getPhysicsSpace().add(floor_phy);
-		floor_phy.setRestitution(1);
-	}
-	
-	/**
 	 * This loop builds a wall out of individual bricks.
 	 */
 	private void initWall() {
@@ -165,6 +149,21 @@ public class TestWorld extends SimpleApplication {
 			startpt = -startpt;
 			height += 2 * brickHeight;
 		}
+	}
+	
+	/**
+	 * A plus sign used as crosshairs to help the player with aiming.
+	 */
+	private void initCrossHairs() {
+		guiNode.detachAllChildren();
+		guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
+		BitmapText ch = new BitmapText(guiFont, false);
+		ch.setSize(guiFont.getCharSet().getRenderedSize() * 2);
+		ch.setText("+");        // fake crosshairs :)
+		ch.setLocalTranslation( // center
+				settings.getWidth() / 2f - guiFont.getCharSet().getRenderedSize() / 3f * 2,
+				settings.getHeight() / 2f + ch.getLineHeight() / 2, 0);
+		guiNode.attachChild(ch);
 	}
 	
 	/**
@@ -189,6 +188,21 @@ public class TestWorld extends SimpleApplication {
 	}
 	
 	/**
+	 * Make a solid floor and add it to the scene.
+	 */
+	private void initFloor() {
+		Geometry floor_geo = new Geometry("Floor", floor);
+		floor_geo.setMaterial(floor_mat);
+		floor_geo.setLocalTranslation(0, -0.1f, 0);
+		this.rootNode.attachChild(floor_geo);
+		/* Make the floor physical with mass 0.0f! */
+		RigidBodyControl floor_phy = new RigidBodyControl(0.0f);
+		floor_geo.addControl(floor_phy);
+		bulletAppState.getPhysicsSpace().add(floor_phy);
+		floor_phy.setRestitution(1);
+	}
+	
+	/**
 	 * This method creates one individual physical cannon ball.
 	 * By default, the ball is accelerated and flies
 	 * from the camera position in the camera direction.
@@ -208,20 +222,5 @@ public class TestWorld extends SimpleApplication {
 		/* Accelerate the physcial ball to shoot it. */
 		ball_phy.setLinearVelocity(cam.getDirection().mult(25));
 		ball_phy.setRestitution(1);
-	}
-	
-	/**
-	 * A plus sign used as crosshairs to help the player with aiming.
-	 */
-	private void initCrossHairs() {
-		guiNode.detachAllChildren();
-		guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
-		BitmapText ch = new BitmapText(guiFont, false);
-		ch.setSize(guiFont.getCharSet().getRenderedSize() * 2);
-		ch.setText("+");        // fake crosshairs :)
-		ch.setLocalTranslation( // center
-				settings.getWidth() / 2f - guiFont.getCharSet().getRenderedSize() / 3f * 2,
-				settings.getHeight() / 2f + ch.getLineHeight() / 2, 0);
-		guiNode.attachChild(ch);
 	}
 }

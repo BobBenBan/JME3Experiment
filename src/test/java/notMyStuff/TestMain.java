@@ -23,36 +23,36 @@ import com.jme3.util.TangentBinormalGenerator;
 public class TestMain extends SimpleApplication {
 	private Geometry player;
 	private boolean isRunning = true;
-	private Geometry sphereGeo;
-	private Spatial teapot;
-	private DirectionalLight sun;
 	private final ActionListener actionListener = (name, keyPressed, tpf) -> {
 		if (name.equals("Pause") && !keyPressed) {
 			isRunning = !isRunning;
 		}
 	};
+	private Geometry sphereGeo;
+	private Spatial teapot;
+	private DirectionalLight sun;
 	private final AnalogListener analogListener = new AnalogListener() {
 		@Override
 		public void onAnalog(String name, float value, float tpf) {
 			if (isRunning) {
 				switch (name) {
-					case "Rotate":
-						player.rotate(0, value * speed, 0);
-						break;
-					case "Right": {
-						Vector3f v = player.getLocalTranslation();
-						player.setLocalTranslation(v.x + value * speed, v.y, v.z);
-						break;
-					}
-					case "Left": {
-						Vector3f v = player.getLocalTranslation();
-						player.setLocalTranslation(v.x - value * speed, v.y, v.z);
-						break;
-					}
-					case "Teapot": {
-						teapot.rotate(value * 2, value * 4, value * 20);
-						sun.setDirection(sun.getDirection().add(value / 3, value, value / 2));
-					}
+				case "Rotate":
+					player.rotate(0, value * speed, 0);
+					break;
+				case "Right": {
+					Vector3f v = player.getLocalTranslation();
+					player.setLocalTranslation(v.x + value * speed, v.y, v.z);
+					break;
+				}
+				case "Left": {
+					Vector3f v = player.getLocalTranslation();
+					player.setLocalTranslation(v.x - value * speed, v.y, v.z);
+					break;
+				}
+				case "Teapot": {
+					teapot.rotate(value * 2, value * 4, value * 20);
+					sun.setDirection(sun.getDirection().add(value / 3, value, value / 2));
+				}
 				}
 			} else {
 				System.out.println("Press P to unpause.");

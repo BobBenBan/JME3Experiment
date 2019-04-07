@@ -1,2 +1,21 @@
 group 'org.bensnonorg.musicmachine'
 version '1.0'
+
+
+dependencies {
+    compile project(':base')
+    compile libraries.jmeMin
+//    compile project(':musicmachine')
+    implementation "${jme3.g}:jme3-desktop:${jme3.v}"
+    implementation "${jme3.g}:jme3-lwjgl3:${jme3.v}"
+    compile "${jme3.g}:jme3-plugins:${jme3.v}"
+    //compile "${jme3.g}:jme3-effects:${jme3.v}"
+    // compile "${jme3.g}:jme3-niftygui:${jme3.v}"
+    //compile "${jme3.g}:jme3-terrain:${jme3.v}"
+    //runtime "${jme3.g}:jme3-examples:${jme3.v}"
+    //runtime "${jme3.g}:jme3-testdata:${jme3.v}"
+    runtime "${jme3.g}:jme3-jogg:${jme3.v}"
+    runtime "${jme3.g}:jme3-bullet-native:${jme3.v}"
+    compile fileTree(dir: '../lib')
+
+}
