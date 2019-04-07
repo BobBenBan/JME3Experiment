@@ -1,8 +1,7 @@
 # Created by .ignore support plugin (hsz.mobi)
 ### Gradle template
 .gradle
-/build/
-
+build
 # Ignore Gradle GUI config
 gradle-app.setting
 
@@ -21,7 +20,6 @@ gradle-app.setting
 # User-specific stuff
 .idea/**/workspace.xml
 .idea/**/tasks.xml
-.idea/**/dictionaries
 .idea/**/shelf
 
 # Sensitive or high-churn files
@@ -91,3 +89,4 @@ fabric.properties
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+!lib
