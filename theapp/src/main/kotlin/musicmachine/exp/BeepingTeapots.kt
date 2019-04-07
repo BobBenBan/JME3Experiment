@@ -127,7 +127,7 @@ class BeepingTeapots : TestApp() {
 
 	companion object {
 		@JvmStatic
-		fun main() {
+		fun main(args: Array<String>) {
 			BeepingTeapots().start()
 		}
 	}
