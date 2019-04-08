@@ -1,5 +1,6 @@
-package musicmachine.exp
+package org.bensnonorg.musicmachine.exp
 
+import com.jme3.light.AmbientLight
 import com.jme3.light.DirectionalLight
 import com.jme3.light.PointLight
 import com.jme3.light.SpotLight
@@ -7,6 +8,7 @@ import com.jme3.material.Material
 import com.jme3.math.ColorRGBA
 import com.jme3.math.FastMath
 import com.jme3.math.Vector3f
+import com.jme3.scene.Geometry
 import com.jme3.scene.control.LightControl
 import com.jme3.shadow.DirectionalLightShadowRenderer
 import org.bensnonorg.musicmachine.base.jmeextensions.LazyCloning
@@ -42,7 +44,7 @@ class BeepingTeapots : TestApp() {
 	private val teapot: BangingObject by Factory {
 		object : BangingObject(
 			"teapot", teapotSpatial, physicsSpace, 3f, assetManager,
-			"Sound/Effects/Beep.ogg"
+			"Sound/Effects/Bang.wav"
 		) {
 			override fun onStrike(force: Float, hardness: Float) {
 				if (force < FORCE_MIN) return
@@ -102,7 +104,7 @@ class BeepingTeapots : TestApp() {
 			}
 
 			init {
-//				(spatial as Geometry).material.setColor("Diffuse", color)
+				(spatial as Geometry).material.setColor("Diffuse", color)
 				with(audioNode) {
 					refDistance = 2f
 				}
@@ -118,18 +120,12 @@ class BeepingTeapots : TestApp() {
 			lambda = 0.8f
 		}
 		viewPort.addProcessor(shadowRenderer)
+		rootNode.addLight(AmbientLight(ColorRGBA.White.mult(0.1f)))
 //		rootNode.addLight(AmbientLight(ColorRGBA.White.mult(0.005f)))
 	}
 
 	override fun action() {
 		rootNode.attachChild(teapot)
-	}
-
-	companion object {
-		@JvmStatic
-		fun main(args: Array<String>) {
-			BeepingTeapots().start()
-		}
 	}
 }
 

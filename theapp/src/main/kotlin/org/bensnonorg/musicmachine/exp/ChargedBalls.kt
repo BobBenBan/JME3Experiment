@@ -1,4 +1,4 @@
-package musicmachine.exp
+package org.bensnonorg.musicmachine.exp
 
 import com.jme3.app.Application
 import com.jme3.app.state.BaseAppState

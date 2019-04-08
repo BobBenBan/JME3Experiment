@@ -7,7 +7,6 @@ import com.jme3.bullet.PhysicsSpace
 import com.jme3.bullet.collision.PhysicsCollisionEvent
 import com.jme3.scene.Node
 import com.jme3.scene.Spatial
-import com.jme3.util.clone.Cloner
 import org.bensnonorg.musicmachine.base.jmeextensions.scene.AugmentedNode.Update.*
 import org.bensnonorg.musicmachine.base.kotlin.CallSuper
 import org.bensnonorg.musicmachine.base.kotlin.StrictCallSuper
@@ -26,25 +25,16 @@ import java.util.logging.Logger
  */
 open class AugmentedNode protected constructor(name: String?) : Node(name) {
 
-	var initialized = false
-		private set
-	private var isAttached = false
-	/**
-	 * Additional Initialization to be called AFTER initialization.
-	 * Things to do here, NOT in init blocks:
-	 * - Add controls
-	 * - Do things BEFORE controls are added, such as translate nodes
-	 * - Initialize Renderer, Filters, etc.
-	 *
-	 */
-	protected open fun init(): StrictCallSuper {
-		initialized = true
-		return TopClass
-	}
+	var isEnabled: Boolean = false
+		set(enabled) {
+			if (field == enabled) return
+			field = enabled
+			if (enabled) onEnable() else onDisable()
+		}
 
-	fun ensureInit() {
-		if (!initialized) init()
-	}
+	protected open fun onEnable(): StrictCallSuper = TopClass
+	protected open fun onDisable(): StrictCallSuper = TopClass
+	private var isAttached = false
 
 	protected enum class Update {
 		Attached, Detached, Changed
@@ -54,11 +44,19 @@ open class AugmentedNode protected constructor(name: String?) : Node(name) {
 		val oldParent = parent
 		super.setParent(newParent)
 		val update: Update = if (oldParent === null) {
-			if (newParent !== null) Attached else return
+			if (newParent.isAttached()) Attached else return
 		} else {
-			if (newParent === null) Detached else Changed
+			if (newParent.isAttached()) Changed else Detached
 		}
 		onUpdate(update)
+	}
+
+	private fun Node?.isAttached(): Boolean {
+		when (this) {
+			null -> return false
+			is AugmentedNode -> return this.isAttached
+			else -> return getUserData<Boolean>("isRoot") ?: return parent.isAttached()
+		}
 	}
 
 	protected fun onUpdate(update: Update) {
@@ -74,11 +72,11 @@ open class AugmentedNode protected constructor(name: String?) : Node(name) {
 
 	protected open fun onAttached(): StrictCallSuper {
 		isAttached = true
-		ensureInit()
 		return TopClass
 	}
 
 	protected open fun onDetached(): StrictCallSuper {
+		isEnabled = false//do not try to run if not attached
 		isAttached = false
 		return TopClass
 	}
@@ -86,21 +84,19 @@ open class AugmentedNode protected constructor(name: String?) : Node(name) {
 	protected open fun onChanged(): CallSuper =
 		TopClass
 
-	override fun cloneFields(cloner: Cloner, original: Any) {
-		super.cloneFields(cloner, original)
-		onDetached()
-	}
-
 	final override fun attachChild(child: Spatial) = super.attachChild(child)
 	final override fun attachChildAt(child: Spatial, index: Int) = super.attachChildAt(child, index)
 
 	companion object {
 		@JvmStatic
 		val logger: Logger = Logger.getLogger(AugmentedNode::class.simpleName)
-
-		@JvmStatic
-		fun create(name: String?) = AugmentedNode(name)
 	}
+}
+
+//extensnion
+fun Node.attachAndEnable(node: AugmentedNode) {
+	node.isEnabled = true
+	this.attachChild(node)
 }
 
 /**

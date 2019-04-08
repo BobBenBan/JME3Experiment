@@ -17,7 +17,10 @@ open class PhysicalObject protected constructor(
 
 	override fun init(): StrictCallSuper {
 		shadowMode = RenderQueue.ShadowMode.CastAndReceive
-		addControl(RigidBodyControl(mass))
+		val control = RigidBodyControl(mass)
+		addControl(control)
+		control.isEnabled = false
+		control.physicsSpace = physicsSpace
 		return super.init()
 	}
 
@@ -31,13 +34,13 @@ open class PhysicalObject protected constructor(
 
 	override fun onAttached(): StrictCallSuper {
 		super.onAttached()
-		rigidBodyControl.isEnabled = false
+		rigidBodyControl.isEnabled = true
 		return SuperCalled
 	}
 
 	override fun onDetached(): StrictCallSuper {
 		super.onDetached()
-		rigidBodyControl.isEnabled = true
+		rigidBodyControl.isEnabled = false
 		return SuperCalled
 	}
 
