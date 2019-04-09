@@ -1,9 +1,9 @@
-package org.bensnonorg.musicmachine.base.jmeextensions.controls
+package org.bensnonorg.musicmachine.control
 
 import com.jme3.input.InputManager
 import com.jme3.input.controls.InputListener
 import com.jme3.input.controls.Trigger
-
+@Deprecated("To be replaced with InputManager extention.")
 inline fun <reified Val> InputManager.allInOneMultiple(
 	actionListener: InputListener, valToTrigger: (Val) -> Trigger, vararg values: Any
 ) {

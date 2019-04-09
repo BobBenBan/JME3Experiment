@@ -1,9 +1,9 @@
-package org.bensnonorg.musicmachine.base.jmeextensions.scene
+package org.bensnonorg.musicmachine.scene
 
 import com.jme3.asset.AssetManager
 import com.jme3.material.Material
 import com.jme3.texture.Texture
-
+@Deprecated("Will be replaced with .j3m eventually")
 class SplatMaterial(contentMan: AssetManager) : Material(contentMan, "Common/MatDefs/Terrain/TerrainLighting.j3md") {
 	fun setDiffuse(n: Int, tex: Texture, scale: Float) {
 		tex.setWrap(Texture.WrapMode.Repeat)

@@ -1,12 +1,12 @@
-package org.bensnonorg.musicmachine.base.physics
+package org.bensnonorg.musicmachine.physics
 
 import com.jme3.bullet.PhysicsSpace
 import com.jme3.bullet.control.RigidBodyControl
 import com.jme3.renderer.queue.RenderQueue
 import com.jme3.scene.Spatial
-import org.bensnonorg.musicmachine.base.jmeextensions.scene.AugmentedNode
-import org.bensnonorg.musicmachine.base.kotlin.StrictCallSuper
-import org.bensnonorg.musicmachine.base.kotlin.SuperCalled
+import org.bensnonorg.musicmachine.scene.AugmentedNode
+import org.bensnonorg.musicmachine.kotlin.StrictCallSuper
+import org.bensnonorg.musicmachine.kotlin.SuperCalled
 
 /**
  * A node that wraps around a spatial and represents a physical object in space.
@@ -32,14 +32,14 @@ open class PhysicalObject protected constructor(
 		attachChild(spatial)
 	}
 
-	override fun onAttached(): StrictCallSuper {
-		super.onAttached()
+	override fun onAttached(source: Boolean): StrictCallSuper {
+		super.onAttached(source)
 		rigidBodyControl.isEnabled = true
 		return SuperCalled
 	}
 
-	override fun onDetached(): StrictCallSuper {
-		super.onDetached()
+	override fun onDetached(source: Boolean): StrictCallSuper {
+		super.onDetached(source)
 		rigidBodyControl.isEnabled = false
 		return SuperCalled
 	}

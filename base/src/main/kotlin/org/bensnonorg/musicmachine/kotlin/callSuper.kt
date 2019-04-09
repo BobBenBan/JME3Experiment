@@ -1,4 +1,4 @@
-package org.bensnonorg.musicmachine.base.kotlin
+package org.bensnonorg.musicmachine.kotlin
 
 /**
  * Utility marker class for "enforcing" call super.

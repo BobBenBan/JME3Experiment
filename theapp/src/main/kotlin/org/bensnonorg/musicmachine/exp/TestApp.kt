@@ -21,13 +21,13 @@ import com.jme3.math.Vector3f
 import com.jme3.scene.Node
 import com.jme3.texture.Texture.WrapMode
 import kotlinx.coroutines.runBlocking
-import org.bensnonorg.musicmachine.base.jmeextensions.controls.allInOneMultiple
-import org.bensnonorg.musicmachine.base.jmeextensions.math.minusAssign
-import org.bensnonorg.musicmachine.base.jmeextensions.math.plusAssign
-import org.bensnonorg.musicmachine.base.jmeextensions.math.timesAssign
-import org.bensnonorg.musicmachine.base.jmeextensions.scene.SplatMaterial
-import org.bensnonorg.musicmachine.base.jmeextensions.scene.createSimpleTerrainQuad
-import org.bensnonorg.musicmachine.base.physics.SpatialCollisionListener
+import org.bensnonorg.musicmachine.control.allInOneMultiple
+import org.bensnonorg.musicmachine.extensions.math.minusAssign
+import org.bensnonorg.musicmachine.extensions.math.plusAssign
+import org.bensnonorg.musicmachine.extensions.math.timesAssign
+import org.bensnonorg.musicmachine.scene.SplatMaterial
+import org.bensnonorg.musicmachine.scene.createSimpleTerrainQuad
+import org.bensnonorg.musicmachine.physics.SpatialCollisionListener
 
 abstract class TestApp :
 	SimpleApplication(StatsAppState(), FlyCamAppState(), AudioListenerState(), DebugKeysAppState()),

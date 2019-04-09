@@ -14,8 +14,8 @@ import com.jme3.math.Vector3f
 import com.jme3.scene.Geometry
 import com.jme3.scene.Node
 import com.jme3.scene.shape.Sphere
-import org.bensnonorg.musicmachine.base.jmeextensions.math.plus
-import org.bensnonorg.musicmachine.base.jmeextensions.math.times
+import org.bensnonorg.musicmachine.extensions.math.plus
+import org.bensnonorg.musicmachine.extensions.math.times
 import kotlin.math.absoluteValue
 import kotlin.math.sign
 

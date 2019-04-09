@@ -1,4 +1,4 @@
-package org.bensnonorg.musicmachine.base.jmeextensions.app
+package org.bensnonorg.musicmachine.app
 
 import com.jme3.app.SimpleApplication
 

@@ -1,4 +1,4 @@
-package org.bensnonorg.musicmachine.base.jmeextensions.controls
+package org.bensnonorg.musicmachine.input
 
 import com.jme3.export.JmeExporter
 import com.jme3.export.JmeImporter
@@ -8,7 +8,7 @@ import com.jme3.input.controls.KeyTrigger
 import com.jme3.input.controls.MouseAxisTrigger
 import com.jme3.input.controls.MouseButtonTrigger
 import com.jme3.input.controls.Trigger
-import org.bensnonorg.musicmachine.base.kotlin.initOnce
+import org.bensnonorg.musicmachine.kotlin.initOnce
 import java.io.IOException
 
 /**

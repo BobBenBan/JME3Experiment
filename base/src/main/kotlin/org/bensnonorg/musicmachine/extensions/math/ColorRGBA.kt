@@ -1,4 +1,4 @@
-package org.bensnonorg.musicmachine.base.jmeextensions.math
+package org.bensnonorg.musicmachine.extensions.math
 
 import com.jme3.math.ColorRGBA
 

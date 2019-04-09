@@ -1,6 +1,6 @@
 @file:Suppress("UNCHECKED_CAST")
 
-package org.bensnonorg.musicmachine.base.jmeextensions
+package org.bensnonorg.musicmachine.extensions
 
 import com.jme3.scene.Spatial
 import kotlin.properties.ReadOnlyProperty

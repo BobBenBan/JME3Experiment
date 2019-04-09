@@ -1,4 +1,4 @@
-package org.bensnonorg.musicmachine.base.jmeextensions.scene
+package org.bensnonorg.musicmachine.scene
 
 import com.jme3.asset.AssetManager
 import com.jme3.audio.AudioData
@@ -7,13 +7,13 @@ import com.jme3.bullet.PhysicsSpace
 import com.jme3.bullet.collision.PhysicsCollisionEvent
 import com.jme3.scene.Node
 import com.jme3.scene.Spatial
-import org.bensnonorg.musicmachine.base.jmeextensions.scene.AugmentedNode.Update.*
-import org.bensnonorg.musicmachine.base.kotlin.CallSuper
-import org.bensnonorg.musicmachine.base.kotlin.StrictCallSuper
-import org.bensnonorg.musicmachine.base.kotlin.SuperCalled
-import org.bensnonorg.musicmachine.base.kotlin.TopClass
-import org.bensnonorg.musicmachine.base.physics.PhysicalObject
-import org.bensnonorg.musicmachine.base.physics.SpatialCollisionListener
+import org.bensnonorg.musicmachine.kotlin.CallSuper
+import org.bensnonorg.musicmachine.kotlin.StrictCallSuper
+import org.bensnonorg.musicmachine.kotlin.SuperCalled
+import org.bensnonorg.musicmachine.kotlin.TopClass
+import org.bensnonorg.musicmachine.physics.PhysicalObject
+import org.bensnonorg.musicmachine.physics.SpatialCollisionListener
+import org.bensnonorg.musicmachine.scene.AugmentedNode.Update.*
 import java.util.logging.Logger
 
 /**
@@ -31,59 +31,65 @@ open class AugmentedNode protected constructor(name: String?) : Node(name) {
 			field = enabled
 			if (enabled) onEnable() else onDisable()
 		}
-
-	protected open fun onEnable(): StrictCallSuper = TopClass
-	protected open fun onDisable(): StrictCallSuper = TopClass
 	private var isAttached = false
+	protected open fun onEnable(): StrictCallSuper {
+		return TopClass
+	}
+
+	protected open fun onDisable(): StrictCallSuper {
+		return TopClass
+	}
 
 	protected enum class Update {
 		Attached, Detached, Changed
 	}
 
 	override fun setParent(newParent: Node?) {
-		val oldParent = parent
 		super.setParent(newParent)
-		val update: Update = if (oldParent === null) {
-			if (newParent.isAttached()) Attached else return
-		} else {
-			if (newParent.isAttached()) Changed else Detached
-		}
+		val update: Update =
+			if (isAttached) {
+				if (newParent.isAttached()) Changed else Detached
+			} else {
+				if (newParent.isAttached()) Attached else return
+			}
 		onUpdate(update)
 	}
 
 	private fun Node?.isAttached(): Boolean {
-		when (this) {
-			null -> return false
-			is AugmentedNode -> return this.isAttached
-			else -> return getUserData<Boolean>("isRoot") ?: return parent.isAttached()
+		return when (this) {
+			null -> false
+			is AugmentedNode -> this.isAttached
+			else -> getUserData<Boolean>("isRoot") ?: parent.isAttached()
 		}
 	}
 
-	protected fun onUpdate(update: Update) {
+	protected fun onUpdate(update: Update, source: Boolean = true) {
 		when (update) {
-			Attached -> onAttached()
-			Detached -> onDetached()
-			Changed -> onChanged()
+			Attached -> onAttached(source)
+			Detached -> onDetached(source)
+			Changed -> onChanged(source)
 		}
+		propagateUpdate(update)
+	}
+
+	private fun propagateUpdate(update: Update) {
 		for (c in children) {
-			if (c is AugmentedNode) c.onUpdate(update)
+			if (c is AugmentedNode) c.onUpdate(update, false)
 		}
 	}
 
-	protected open fun onAttached(): StrictCallSuper {
+	protected open fun onAttached(source: Boolean): StrictCallSuper {
 		isAttached = true
 		return TopClass
 	}
 
-	protected open fun onDetached(): StrictCallSuper {
+	protected open fun onDetached(source: Boolean): StrictCallSuper {
 		isEnabled = false//do not try to run if not attached
 		isAttached = false
 		return TopClass
 	}
 
-	protected open fun onChanged(): CallSuper =
-		TopClass
-
+	protected open fun onChanged(source: Boolean): CallSuper = TopClass
 	final override fun attachChild(child: Spatial) = super.attachChild(child)
 	final override fun attachChildAt(child: Spatial, index: Int) = super.attachChildAt(child, index)
 
@@ -127,8 +133,8 @@ abstract class BangingObject(
 	}
 
 	val audioNode get() = getChild<AudioNode>()!!
-	override fun onDetached(): StrictCallSuper {
-		super.onDetached()
+	override fun onDetached(source: Boolean): StrictCallSuper {
+		super.onDetached(source)
 		audioNode.stop()
 		return SuperCalled
 	}

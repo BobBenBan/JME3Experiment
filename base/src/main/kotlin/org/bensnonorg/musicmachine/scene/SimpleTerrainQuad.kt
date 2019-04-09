@@ -1,4 +1,4 @@
-package org.bensnonorg.musicmachine.base.jmeextensions.scene
+package org.bensnonorg.musicmachine.scene
 
 import com.jme3.bullet.control.RigidBodyControl
 import com.jme3.material.Material
@@ -10,6 +10,7 @@ import com.jme3.terrain.heightmap.HeightMap
 import com.jme3.terrain.heightmap.ImageBasedHeightMap
 import com.jme3.texture.Texture
 
+@Deprecated(message = "Old Construct")
 class SimpleTerrainQuad internal constructor(heightMap: HeightMap, patchSize: Int) :
 	TerrainQuad("SimpleTerrainQuad", patchSize, heightMap.size + 1, heightMap.heightMap) {
 

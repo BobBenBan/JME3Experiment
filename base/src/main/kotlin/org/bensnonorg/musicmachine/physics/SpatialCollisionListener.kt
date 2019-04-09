@@ -1,4 +1,4 @@
-package org.bensnonorg.musicmachine.base.physics
+package org.bensnonorg.musicmachine.physics
 
 import com.jme3.bullet.collision.PhysicsCollisionEvent
 import com.jme3.bullet.collision.PhysicsCollisionListener

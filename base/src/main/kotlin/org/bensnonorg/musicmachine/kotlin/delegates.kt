@@ -1,4 +1,4 @@
-package org.bensnonorg.musicmachine.base.kotlin
+package org.bensnonorg.musicmachine.kotlin
 
 import kotlin.properties.ReadOnlyProperty
 import kotlin.properties.ReadWriteProperty

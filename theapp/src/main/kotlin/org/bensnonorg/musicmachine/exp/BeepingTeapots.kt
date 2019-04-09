@@ -11,13 +11,13 @@ import com.jme3.math.Vector3f
 import com.jme3.scene.Geometry
 import com.jme3.scene.control.LightControl
 import com.jme3.shadow.DirectionalLightShadowRenderer
-import org.bensnonorg.musicmachine.base.jmeextensions.LazyCloning
-import org.bensnonorg.musicmachine.base.jmeextensions.math.plus
-import org.bensnonorg.musicmachine.base.jmeextensions.math.times
-import org.bensnonorg.musicmachine.base.jmeextensions.scene.BangingObject
-import org.bensnonorg.musicmachine.base.kotlin.Factory
-import org.bensnonorg.musicmachine.base.kotlin.StrictCallSuper
-import org.bensnonorg.musicmachine.base.kotlin.SuperCalled
+import org.bensnonorg.musicmachine.extensions.LazyCloning
+import org.bensnonorg.musicmachine.extensions.math.plus
+import org.bensnonorg.musicmachine.extensions.math.times
+import org.bensnonorg.musicmachine.scene.BangingObject
+import org.bensnonorg.musicmachine.kotlin.Factory
+import org.bensnonorg.musicmachine.kotlin.StrictCallSuper
+import org.bensnonorg.musicmachine.kotlin.SuperCalled
 import kotlin.math.exp
 
 private const val FORCE_MIN = 2
@@ -56,8 +56,8 @@ class BeepingTeapots : TestApp() {
 			}
 
 			//			private var shadowRenderer by initOnce<SpotLightShadowRenderer>()
-			override fun onAttached(): StrictCallSuper {
-				super.onAttached()
+			override fun onAttached(source: Boolean): StrictCallSuper {
+				super.onAttached(source)
 				with(rigidBodyControl) {
 					restitution = 0.7f
 					friction = 0.8f

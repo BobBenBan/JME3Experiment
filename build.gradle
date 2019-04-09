@@ -1,4 +1,3 @@
-
 buildscript {
     ext.kotlin_version = '1.3.21'
     repositories {
@@ -10,7 +9,6 @@ buildscript {
 }
 plugins {
     id "application"
-    id 'org.jetbrains.kotlin.jvm' version '1.3.21'
 }
 group 'org.bensnonorg.musicmachine'
 version '1.0'
@@ -18,6 +16,9 @@ mainClassName = "org.bensnonorg.musicmachine.Main"
 
 sourceCompatibility = JavaVersion.VERSION_12
 ext.jme3 = [v: '3.2.2-stable', g: 'org.jmonkeyengine']
+dependencies {
+    compile project(":theapp")
+}
 allprojects {
     repositories {
         jcenter()
@@ -30,7 +31,7 @@ subprojects {
     dependencies {
         implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
         implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.1.1"
-        implementation "org.jetbrains.kotlin:kotlin-reflect:1.3.21"
+        implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
         implementation fileTree(dir: 'lib', include: ['*.jar'])
         testImplementation "org.jetbrains.kotlin:kotlin-test"
         testImplementation "org.jetbrains.kotlin:kotlin-test-junit"
@@ -47,7 +48,4 @@ subprojects {
             jvmTarget = "1.8"
         }
     }
-}
-dependencies {
-    compile project(":theapp")
 }
