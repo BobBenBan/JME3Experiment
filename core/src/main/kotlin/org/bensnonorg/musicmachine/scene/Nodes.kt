@@ -7,10 +7,6 @@ import com.jme3.bullet.PhysicsSpace
 import com.jme3.bullet.collision.PhysicsCollisionEvent
 import com.jme3.scene.Node
 import com.jme3.scene.Spatial
-import org.bensnonorg.musicmachine.kotlin.CallSuper
-import org.bensnonorg.musicmachine.kotlin.StrictCallSuper
-import org.bensnonorg.musicmachine.kotlin.SuperCalled
-import org.bensnonorg.musicmachine.kotlin.TopClass
 import org.bensnonorg.musicmachine.physics.PhysicalObject
 import org.bensnonorg.musicmachine.physics.SpatialCollisionListener
 import org.bensnonorg.musicmachine.scene.AugmentedNode.Update.*
@@ -40,7 +36,7 @@ import org.bensnonorg.musicmachine.scene.AugmentedNode.Update.*
  *   - Actual behavior of enabling/disabling depends on subclass behavior.
  *
  *   - Disable will always occur before Detached, Attached before Enable.
- *   - Update order can be determined by subclasses -- when or when not super is called.
+ *   - Update order of enabling/disabling can be determined by subclasses -- when or when not super is called.
  *
  *  TODO: Final update
  *       If multiple operations are done at once, the calculations walking down the tree are done AFTER every calculation
@@ -51,7 +47,7 @@ import org.bensnonorg.musicmachine.scene.AugmentedNode.Update.*
  *       (configurable) number of nodes can be enabled/disabled per frame, queued up and executed.
  *  When created, by default nodes are both detached and disabled.
  *
- *
+ * TODO: Insert app context for ^^^
  */
 abstract class AugmentedNode protected constructor(name: String?) : Node(name) {
 
@@ -72,28 +68,24 @@ abstract class AugmentedNode protected constructor(name: String?) : Node(name) {
 		set(enabled) {
 			if (field == enabled) return //no change.
 			field = enabled
-			//notify from the top down.
-			if(enabled) checkIsEffective() //enable me first!
 			if (isParentsEnabled) {
-				if (enabled) {
-					forAugChildren { it.isParentsEnabled = true }
-				}
-			} else { //set not enabled
-				forAugChildren { it.isParentsEnabled = false }
+				forAugChildren { it.isParentsEnabled = enabled }
 			}
-			if(!enabled) checkIsEffective() //disable me last!
 		}
+
 	/**
 	 * if this node is effective. If so, [onEnable] has been called at some point, else [onDisable] has been called, or the
 	 * node was just initialized.
 	 */
 	var isEffective: Boolean = false
 		private set
+	var isActual: Boolean = false
+		private set
 
-	private fun checkIsEffective() {
+	private fun checkIsEffective(source: Boolean) {
 		val wasEffective = isEffective
 		isEffective = isAttached && isEnabled && isParentsEnabled
-		if (wasEffective != isEffective) if (isEffective) onEnable() else onDisable()
+		if (wasEffective != isEffective) if (isEffective) onEnable(source) else onDisable(source)
 	}
 
 	/**
@@ -120,7 +112,7 @@ abstract class AugmentedNode protected constructor(name: String?) : Node(name) {
 		forAugChildren { it.setIsAttached(isAttached, false) }
 		//attached updated first recursively
 		//then possibly effectiveness
-		checkIsEffective()
+		checkIsEffective(source) //XXX maybe not right?
 	}
 
 	/**
@@ -147,14 +139,14 @@ abstract class AugmentedNode protected constructor(name: String?) : Node(name) {
 	override fun setParent(newParent: Node?) {
 		super.setParent(newParent)
 		if (parent == newParent) return
-		val parentAttached = newParent.findIsAttached()
+		val nowAttached = newParent.findIsAttached()
 		val wasAttached = isAttached
-		isAttached = parentAttached
+		isAttached = nowAttached
 		val update: Update =
 			if (wasAttached) {
-				if (isAttached) Changed else Detached
+				if (nowAttached) Changed else Detached
 			} else {
-				if (isAttached) Attached else return
+				if (nowAttached) Attached else return
 			}
 		onUpdate(update, false)
 	}
@@ -176,27 +168,18 @@ abstract class AugmentedNode protected constructor(name: String?) : Node(name) {
 		}
 	}
 
-	private fun propagateUpdate(update: Update) {
+	protected abstract fun onAttached(source: Boolean) {
 	}
 
-	protected open fun onAttached(source: Boolean): StrictCallSuper {
-		isAttached = true
-		return TopClass
-	}
-
-	protected open fun onDetached(source: Boolean): StrictCallSuper {
-		isAttached = false
-		return TopClass
-	}
-
-	protected open fun onChanged(source: Boolean): CallSuper = TopClass
-	protected open fun onEnable(): StrictCallSuper = TopClass
-	protected open fun onDisable(): StrictCallSuper = TopClass
+	protected abstract fun onDetached(source: Boolean)
+	protected abstract fun onChanged(source: Boolean)
+	protected abstract fun onEnable(source: Boolean)
+	protected abstract fun onDisable(source: Boolean)
 	final override fun attachChild(child: Spatial) = super.attachChild(child)
 	final override fun attachChildAt(child: Spatial, index: Int) = super.attachChildAt(child, index)
 }
 
-//extensnion
+//extention
 fun Node.attachAndEnable(node: AugmentedNode) {
 	node.isEnabled = true
 	this.attachChild(node)
@@ -230,10 +213,10 @@ abstract class BangingObject(
 	}
 
 	val audioNode get() = getChild<AudioNode>()!!
-	override fun onDetached(source: Boolean): StrictCallSuper {
+	override fun onDetached(source: Boolean): Unit {
 		super.onDetached(source)
 		audioNode.stop()
-		return SuperCalled
+		return Unit
 	}
 
 	override fun clone(useMaterials: Boolean): BangingObject = super.clone(useMaterials) as BangingObject
