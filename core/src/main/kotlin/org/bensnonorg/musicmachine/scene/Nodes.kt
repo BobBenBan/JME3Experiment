@@ -19,24 +19,39 @@ import org.bensnonorg.musicmachine.scene.AugmentedNode.Update.*
  * A node that includes other useful features.
  *
  * ***Most of these features only work properly when there is a chain of augmented nodes from any augmented node to the root***
- *
+ * ***Requires Augmented App***
  * This node keeps track of when it is attached to or not attached to a scene, to perform possible refreshing options.
  *   - Overridable functions [onAttached], [onDetached], and [onChanged] will be called when, respectively:
  *     - A node was attached when not previously,
  *     - A node is detached when previously was attached;
  *     - A node is still attached but has changed parents.
  *   - A child of this node that is an `AugmentedNode` will also be notified on being attached or detached.
+ *   - A overridden node can veto attachment updates, to optimize. Note that consequential disable/enable updates can
+ *      still occur.
+ *   - (TODO) Does not support cascading update, since detachment happens instantly. Change parents sparingly.
+ *   -
  *
  *  Nodes can be individually disabled or enabled. Any node can be individually set to be disabled.
  *   - However, a node can only be effectively enabled if:
- *     - it is Attached; and
- *     - all its parents (up to the root node, or first non-augmented node) is enabled
+ *     - it is attached; and
+ *     - all its parents (up to the root node, or first non-augmented node) are enabled
  *   - In this way, individual nodes or entire sections can be individually enabled or disabled.
  *   - Overridable functions [onEnable] and [onDisable] will be called when a node is _effectively_ enabled or disabled.
  *   - Actual behavior of enabling/disabling depends on subclass behavior.
  *
+ *   - Disable will always occur before Detached, Attached before Enable.
+ *   - Update order can be determined by subclasses -- when or when not super is called.
+ *
+ *  TODO: Final update
+ *       If multiple operations are done at once, the calculations walking down the tree are done AFTER every calculation
+ *       has occurred.
+ *
+ *  TODO: Cascading update
+ *       To prevent massive one frame drops when one node with many children is enabled or disabled, a limited
+ *       (configurable) number of nodes can be enabled/disabled per frame, queued up and executed.
  *  When created, by default nodes are both detached and disabled.
-
+ *
+ *
  */
 abstract class AugmentedNode protected constructor(name: String?) : Node(name) {
 
@@ -45,9 +60,7 @@ abstract class AugmentedNode protected constructor(name: String?) : Node(name) {
 	 *               if return value is true.
 	 */
 	private inline fun forAugChildren(action: (AugmentedNode) -> Unit) {
-		for (c in children) if (c is AugmentedNode) {
-			action(c)
-		}
+		for (c in children) if (c is AugmentedNode) action(c)
 	}
 
 	/**
@@ -60,18 +73,15 @@ abstract class AugmentedNode protected constructor(name: String?) : Node(name) {
 			if (field == enabled) return //no change.
 			field = enabled
 			//notify from the top down.
-			if (enabled) {
-				if (isParentsEnabled) {
-					//continue the parents enabled chain
+			if(enabled) checkIsEffective() //enable me first!
+			if (isParentsEnabled) {
+				if (enabled) {
 					forAugChildren { it.isParentsEnabled = true }
-				} else {
-				} //still not parents enabled.
-			} else { //set not enabled
-				if (isParentsEnabled) {
-					forAugChildren { it.isParentsEnabled = false }
 				}
+			} else { //set not enabled
+				forAugChildren { it.isParentsEnabled = false }
 			}
-			checkIsEffective()
+			if(!enabled) checkIsEffective() //disable me last!
 		}
 	/**
 	 * if this node is effective. If so, [onEnable] has been called at some point, else [onDisable] has been called, or the
