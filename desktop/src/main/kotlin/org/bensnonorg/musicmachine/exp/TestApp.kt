@@ -25,9 +25,9 @@ import org.bensnonorg.musicmachine.control.allInOneMultiple
 import org.bensnonorg.musicmachine.extensions.math.minusAssign
 import org.bensnonorg.musicmachine.extensions.math.plusAssign
 import org.bensnonorg.musicmachine.extensions.math.timesAssign
+import org.bensnonorg.musicmachine.physics.SpatialCollisionListener
 import org.bensnonorg.musicmachine.scene.SplatMaterial
 import org.bensnonorg.musicmachine.scene.createSimpleTerrainQuad
-import org.bensnonorg.musicmachine.physics.SpatialCollisionListener
 
 abstract class TestApp :
 	SimpleApplication(StatsAppState(), FlyCamAppState(), AudioListenerState(), DebugKeysAppState()),

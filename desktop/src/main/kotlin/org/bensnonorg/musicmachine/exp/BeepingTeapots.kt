@@ -14,10 +14,11 @@ import com.jme3.shadow.DirectionalLightShadowRenderer
 import org.bensnonorg.musicmachine.extensions.LazyCloning
 import org.bensnonorg.musicmachine.extensions.math.plus
 import org.bensnonorg.musicmachine.extensions.math.times
-import org.bensnonorg.musicmachine.scene.BangingObject
 import org.bensnonorg.musicmachine.kotlin.Factory
 import org.bensnonorg.musicmachine.kotlin.StrictCallSuper
 import org.bensnonorg.musicmachine.kotlin.SuperCalled
+import org.bensnonorg.musicmachine.scene.BangingObject
+import org.bensnonorg.musicmachine.scene.attachAndEnable
 import kotlin.math.exp
 
 private const val FORCE_MIN = 2
@@ -93,9 +94,9 @@ class BeepingTeapots : TestApp() {
 				FastMath.QUARTER_PI
 			)
 
-			override fun init(): StrictCallSuper {
+			override fun onEnable(): StrictCallSuper {
 				spatial.rotate(0f, 0f, -FastMath.QUARTER_PI / 2)
-				super.init()
+				super.onEnable()
 				addControl(LightControl(spotLight))
 				addControl(LightControl(pointLight))
 //				shadowRenderer = SpotLightShadowRenderer(assetManager, 1024)
@@ -125,7 +126,7 @@ class BeepingTeapots : TestApp() {
 	}
 
 	override fun action() {
-		rootNode.attachChild(teapot)
+		rootNode.attachAndEnable(teapot)
 	}
 }
 

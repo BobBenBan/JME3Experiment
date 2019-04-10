@@ -1,9 +1,12 @@
+plugins {
+    id 'application'
+}
 group 'org.bensnonorg.musicmachine'
 version '1.0'
-
+mainClassName = "org.bensnonorg.musicmachine.Main"
 
 dependencies {
-    compile project(':base')
+    compile project(':core')
     implementation "${jme3.g}:jme3-desktop:${jme3.v}"
     implementation "${jme3.g}:jme3-lwjgl3:${jme3.v}"
     compile "${jme3.g}:jme3-plugins:${jme3.v}"
@@ -15,5 +18,4 @@ dependencies {
     runtime "${jme3.g}:jme3-jogg:${jme3.v}"
     runtime "${jme3.g}:jme3-bullet-native:${jme3.v}"
     compile fileTree(dir: '../lib')
-
 }
