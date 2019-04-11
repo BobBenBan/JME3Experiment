@@ -213,7 +213,7 @@ abstract class BangingObject(
 	}
 
 	val audioNode get() = getChild<AudioNode>()!!
-	override fun onDetached(source: Boolean): Unit {
+	override fun onDetached(source: Boolean){
 		super.onDetached(source)
 		audioNode.stop()
 		return Unit
