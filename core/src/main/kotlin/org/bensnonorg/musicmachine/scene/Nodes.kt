@@ -22,10 +22,6 @@ import org.bensnonorg.musicmachine.scene.AugmentedNode.Update.*
  *     - A node is detached when previously was attached;
  *     - A node is still attached but has changed parents.
  *   - A child of this node that is an `AugmentedNode` will also be notified on being attached or detached.
- *   - A overridden node can veto attachment updates, to optimize. Note that consequential disable/enable updates can
- *      still occur.
- *   - (TODO) Does not support cascading update, since detachment happens instantly. Change parents sparingly.
- *   -
  *
  *  Nodes can be individually disabled or enabled. Any node can be individually set to be disabled.
  *   - However, a node can only be effectively enabled if:
@@ -34,30 +30,16 @@ import org.bensnonorg.musicmachine.scene.AugmentedNode.Update.*
  *   - In this way, individual nodes or entire sections can be individually enabled or disabled.
  *   - Overridable functions [onEnable] and [onDisable] will be called when a node is _effectively_ enabled or disabled.
  *   - Actual behavior of enabling/disabling depends on subclass behavior.
+ *   - Parents will be enabled before any children, and children will be disabled before any parents.
  *
  *   - Disable will always occur before Detached, Attached before Enable.
- *   - Update order of enabling/disabling can be determined by subclasses -- when or when not super is called.
- *
- *  TODO: Final update
- *       If multiple operations are done at once, the calculations walking down the tree are done AFTER every calculation
- *       has occurred.
- *
- *  TODO: Cascading update
+ */
+/*TODO
  *       To prevent massive one frame drops when one node with many children is enabled or disabled, a limited
  *       (configurable) number of nodes can be enabled/disabled per frame, queued up and executed.
  *  When created, by default nodes are both detached and disabled.
- *
- * TODO: Insert app context for ^^^
  */
 abstract class AugmentedNode protected constructor(name: String?) : Node(name) {
-
-	/**
-	 * @param action the action to be performed on children, and will recurse on the children's children
-	 *               if return value is true.
-	 */
-	private inline fun forAugChildren(action: (AugmentedNode) -> Unit) {
-		for (c in children) if (c is AugmentedNode) action(c)
-	}
 
 	/**
 	 * If this node is individually enabled or not.
@@ -68,33 +50,30 @@ abstract class AugmentedNode protected constructor(name: String?) : Node(name) {
 		set(enabled) {
 			if (field == enabled) return //no change.
 			field = enabled
-			if (isParentsEnabled) {
-				forAugChildren { it.isParentsEnabled = enabled }
+			//XXX TODO
+			forAugNodeChildren(dfsMode = parentFirstif(enabled), recurse = { isParentEffective() }) {
+				checkIsEffective()
 			}
 		}
-
 	/**
 	 * if this node is effective. If so, [onEnable] has been called at some point, else [onDisable] has been called, or the
 	 * node was just initialized.
+	 *
+	 * True if enabled and parent is effective (meaning attached).
 	 */
 	var isEffective: Boolean = false
 		private set
-	var isActual: Boolean = false
-		private set
 
-	private fun checkIsEffective(source: Boolean) {
-		val wasEffective = isEffective
-		isEffective = isAttached && isEnabled && isParentsEnabled
-		if (wasEffective != isEffective) if (isEffective) onEnable(source) else onDisable(source)
+	private fun checkIsEffective(source: Boolean = true) {
+		val wasEffective = this.isEffective
+		this.isEffective = isEnabled && isAttached && isParentEffective()
+		if (wasEffective != this.isEffective) if (this.isEffective) onEnable(source) else onDisable(source)
 	}
 
 	/**
 	 * If this node is attached to a scene. This means that one of this node's ancestors has a
 	 * userData boolean "isRoot" of true.
 	 *
-	 */
-	/*
-	 * True if: parent isAttached
 	 */
 	var isAttached = false
 		private set
@@ -108,29 +87,16 @@ abstract class AugmentedNode protected constructor(name: String?) : Node(name) {
 			} else {
 				if (isAttached) Attached else return
 			}
-		onUpdate(update, source)
-		forAugChildren { it.setIsAttached(isAttached, false) }
+		when (update) {
+			Attached -> onAttached(source)
+			Detached -> onDetached(source)
+			Changed -> onChanged(source)
+		}
+		//		forAugChildren { it.setIsAttached(isAttached, false) }
 		//attached updated first recursively
 		//then possibly effectiveness
 		checkIsEffective(source) //XXX maybe not right?
 	}
-
-	/**
-	 * True if
-	 *      parent isEnabled
-	 *  and parent isParentsEnabled
-	 *
-	 *  if one changes, other must be true for other to change.
-	 */
-	private var isParentsEnabled: Boolean = true
-		set(parEnabled) {
-			if (field == parEnabled) return //the same thing.
-			field = parEnabled
-			checkIsEffective()
-			if (isEnabled) {
-				forAugChildren { it.isParentsEnabled = parEnabled }
-			}
-		}
 
 	protected enum class Update {
 		Attached, Detached, Changed
@@ -138,7 +104,7 @@ abstract class AugmentedNode protected constructor(name: String?) : Node(name) {
 
 	override fun setParent(newParent: Node?) {
 		super.setParent(newParent)
-		if (parent == newParent) return
+		if (parent === newParent || parent === this) return
 		val nowAttached = newParent.findIsAttached()
 		val wasAttached = isAttached
 		isAttached = nowAttached
@@ -148,29 +114,78 @@ abstract class AugmentedNode protected constructor(name: String?) : Node(name) {
 			} else {
 				if (nowAttached) Attached else return
 			}
-		onUpdate(update, false)
-	}
-
-	private tailrec fun Node?.findIsAttached(): Boolean {
-		return when (this@findIsAttached) {
-			null -> false
-			is AugmentedNode -> if (this@findIsAttached === this@AugmentedNode) false else this@findIsAttached.isAttached
-			else -> getUserData<Boolean>("isRoot")
-				?: parent.findIsAttached()
-		}
-	}
-
-	private fun onUpdate(update: Update, source: Boolean) {
 		when (update) {
-			Attached -> onAttached(source)
-			Detached -> onDetached(source)
-			Changed -> onChanged(source)
+			Attached -> onAttached(true)
+			Detached -> onDetached(true)
+			Changed -> onChanged(true)
 		}
 	}
 
-	protected abstract fun onAttached(source: Boolean) {
+	private fun Node?.findIsAttached(): Boolean {
+		return when (this@findIsAttached) {
+			is AugmentedNode -> if (this@findIsAttached === this@AugmentedNode) false else this@findIsAttached.isAttached
+			null -> false
+			else -> getUserData<Boolean>("isRoot")
+				?: false
+		}
 	}
 
+	/**
+	 * ONLY TO BE CALLED WHEN isAttached
+	 */
+	private fun isParentEffective(): Boolean {
+		assert(isAttached)
+		val parent = parent ?: throw AssertionError()
+		return when (parent) {
+			is AugmentedNode -> parent.isEffective
+			else -> getUserData<Boolean>("isRoot")
+				?: throw AssertionError()
+		}
+	}
+
+	/**
+	 * Searches the scene graph possibly recursively through this node on _only [AugmentedNode]_ children.
+	 * First runs on current node, then possibly any children.
+	 *
+	 * @param dfsMode the [Spatial.DFSMode]
+	 * @param recurse A function that returns if we should traverse down the children of this node. First called on _this_ node.
+	 * @param source information to be passed on about if this the source of the update, default false
+	 * @param visit the function to run at the visited node. First called on _this_ node.
+	 */
+	@JvmOverloads
+	fun forAugNodeChildren(
+		dfsMode: DFSMode = DFSMode.PRE_ORDER,
+		recurse: AugmentedNode.() -> Boolean = { true },
+		source: Boolean = false,
+		visit: AugmentedNode.(Boolean) -> Unit
+	) {
+		when (dfsMode) {
+			DFSMode.PRE_ORDER -> {
+				this.visit(source)
+				forAugChildren {
+					if (it.recurse())
+						it.forAugNodeChildren(dfsMode, recurse, false, visit)
+				}
+			}
+			DFSMode.POST_ORDER -> {
+				forAugChildren {
+					if (it.recurse())
+						it.forAugNodeChildren(dfsMode, recurse, false, visit)
+				}
+				this.visit(source)
+			}
+		}
+	}
+
+	/**
+	 * @param action the action to be performed on children, and will recurse on the children's children
+	 *               if return value is true.
+	 */
+	private inline fun forAugChildren(action: (AugmentedNode) -> Unit) {
+		for (c in children.array) if (c is AugmentedNode) action(c)
+	}
+
+	protected abstract fun onAttached(source: Boolean)
 	protected abstract fun onDetached(source: Boolean)
 	protected abstract fun onChanged(source: Boolean)
 	protected abstract fun onEnable(source: Boolean)
@@ -179,6 +194,7 @@ abstract class AugmentedNode protected constructor(name: String?) : Node(name) {
 	final override fun attachChildAt(child: Spatial, index: Int) = super.attachChildAt(child, index)
 }
 
+fun parentFirstif(parentFirst: Boolean) = if (parentFirst) Spatial.DFSMode.PRE_ORDER else Spatial.DFSMode.POST_ORDER
 //extention
 fun Node.attachAndEnable(node: AugmentedNode) {
 	node.isEnabled = true
@@ -213,7 +229,7 @@ abstract class BangingObject(
 	}
 
 	val audioNode get() = getChild<AudioNode>()!!
-	override fun onDetached(source: Boolean){
+	override fun onDetached(source: Boolean) {
 		super.onDetached(source)
 		audioNode.stop()
 		return Unit
