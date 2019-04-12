@@ -4,14 +4,14 @@ import com.jme3.bullet.PhysicsSpace
 import com.jme3.bullet.control.RigidBodyControl
 import com.jme3.renderer.queue.RenderQueue
 import com.jme3.scene.Spatial
-import org.bensnonorg.musicmachine.scene.AugmentedNode
+import org.bensnonorg.musicmachine.scene.NotifyingNode
 
 /**
  * A node that wraps around a spatial and represents a physical object in space.
  */
 open class PhysicalObject protected constructor(
     name: String?, spatial: Spatial, private val physicsSpace: PhysicsSpace, private val mass: Float
-) : AugmentedNode(name) {
+) : NotifyingNode(name) {
 
     override fun onEnable(): StrictCallSuper {
         shadowMode = RenderQueue.ShadowMode.CastAndReceive

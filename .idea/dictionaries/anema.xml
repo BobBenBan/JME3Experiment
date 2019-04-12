@@ -2,6 +2,7 @@
   <dictionary name="anema">
     <words>
       <w>enableable</w>
+      <w>hideable</w>
       <w>keybindngs</w>
       <w>runnables</w>
     </words>

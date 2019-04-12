@@ -1,9 +1,9 @@
-import org.bensnonorg.musicmachine.scene.AugmentedNode;
+import org.bensnonorg.musicmachine.scene.NotifyingNode;
 
 public class Exp {
 	public static void main(String[] args) {
-		AugmentedNode augmentedNode = null;
-		boolean enabled = augmentedNode.isEnabled();
-		augmentedNode.setEnabled(false);
+		NotifyingNode notifyingNode = null;
+		boolean enabled = notifyingNode.isEnabled();
+		notifyingNode.setEnabled(false);
 	}
 }

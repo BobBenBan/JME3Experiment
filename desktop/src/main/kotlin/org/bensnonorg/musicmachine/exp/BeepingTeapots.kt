@@ -16,7 +16,7 @@ import org.bensnonorg.musicmachine.extensions.math.plus
 import org.bensnonorg.musicmachine.extensions.math.times
 import org.bensnonorg.musicmachine.kotlin.Factory
 import org.bensnonorg.musicmachine.scene.BangingObject
-import org.bensnonorg.musicmachine.scene.attachAndEnable
+import org.bensnonorg.musicmachine.scene.enableAndAttach
 import kotlin.math.exp
 
 private const val FORCE_MIN = 2
@@ -124,7 +124,7 @@ class BeepingTeapots : TestApp() {
     }
 
     override fun action() {
-        rootNode.attachAndEnable(teapot)
+        rootNode.enableAndAttach(teapot)
     }
 }
 
