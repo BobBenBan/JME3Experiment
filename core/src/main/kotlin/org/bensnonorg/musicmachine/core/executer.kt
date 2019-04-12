@@ -1,23 +1,30 @@
 package org.bensnonorg.musicmachine.core
 
 import java.util.*
+import java.util.concurrent.Executor
 
-class DelayedExecutor {
+interface KotlinExecutor : Executor {
+	fun execute(runnable: () -> Unit) {
+		execute(Runnable(runnable))
+	}
+}
+
+class BatchExecutor : KotlinExecutor {
+
 	var maxUpdates = 300
 	private var numUpdates = 0
-	private val queue: Queue<() -> Unit> = LinkedList()
-	fun queue(runnable: Runnable) {
-		queue.add { runnable.run() }
+	private val queue: Queue<Runnable> = LinkedList()
+	override fun execute(command: Runnable?) {
+		queue.add(command!!)
 	}
 
-	fun queue(block: () -> Unit) {
-		queue.add(block)
-	}
 	@JvmOverloads
 	fun run(maxUpdates: Int = this.maxUpdates) {
 		var num = 0
 		while (queue.isNotEmpty()) {
-			if (num++ < maxUpdates) queue.remove()()
+			if (num++ < maxUpdates) {
+				queue.remove().run()
+			}
 		}
 	}
 
