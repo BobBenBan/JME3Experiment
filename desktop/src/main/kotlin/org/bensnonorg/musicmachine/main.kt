@@ -6,7 +6,7 @@ import org.bensnonorg.musicmachine.exp.BeepingTeapots
 import org.bensnonorg.musicmachine.scene.AugmentedNode
 
 fun main(args: Array<String>) {
-	var node: AugmentedNode? = null
+    var node: AugmentedNode? = null
 
-	BeepingTeapots().start()
+    BeepingTeapots().start()
 }

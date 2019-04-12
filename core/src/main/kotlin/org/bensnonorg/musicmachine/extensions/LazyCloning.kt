@@ -8,8 +8,8 @@ import kotlin.reflect.KProperty
 
 @Deprecated("This is the wrong way to do things.")
 class LazyCloning<R, T : Spatial>(private val cloneMaterials: Boolean = false, initializer: () -> T) :
-	ReadOnlyProperty<R, T> {
+    ReadOnlyProperty<R, T> {
 
-	private val value by lazy(initializer)
-	override fun getValue(thisRef: R, property: KProperty<*>): T = value.clone(cloneMaterials) as T
+    private val value by lazy(initializer)
+    override fun getValue(thisRef: R, property: KProperty<*>): T = value.clone(cloneMaterials) as T
 }

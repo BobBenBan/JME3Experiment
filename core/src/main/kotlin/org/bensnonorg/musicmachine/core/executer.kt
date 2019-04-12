@@ -1,41 +1,65 @@
 package org.bensnonorg.musicmachine.core
 
+import org.bensnonorg.musicmachine.core.util.logIf
 import java.util.*
+import java.util.concurrent.Executor
+import java.util.function.IntUnaryOperator
+import java.util.logging.Level
+import java.util.logging.Logger
 
-inline fun run(crossinline block: () -> Unit): Runnable {
-	return object : Runnable {
-		override fun run() {
-			block()
-		}
-	}
+/**
+ * An executor that can accumulate and store runnable tasks then run them at a later specified time.
+ * Runnables will be executed in the order they were submitted.
+ */
+interface BufferedExecutor : Executor {
+
+    override fun execute(runnable: Runnable)
+
+    fun executeNow()
+
+    fun cancel(runnable: Runnable)
 }
 
-interface QueuedExecutor {
-	fun queue(runnable: Runnable)
-	fun queue(runnable: () -> Unit)/* {
-		queue(run(runnable))
-	}*/
-	fun execute()
+open class ExecutionException : RuntimeException {
+    constructor() : super()
+    constructor(message: String?) : super(message)
+    constructor(message: String?, cause: Throwable?) : super(message, cause)
+    constructor(cause: Throwable?) : super(cause)
+    constructor(message: String?, cause: Throwable?, enableSuppression: Boolean, writableStackTrace: Boolean) : super(
+        message, cause, enableSuppression, writableStackTrace
+    )
 }
 
-interface MappingQueuedExecutor : QueuedExecutor
-open class ScalableBatchExecutor : QueuedExecutor {
-	override fun queue(runnable: () -> Unit) {
-		queue(run(runnable))
-	}
+class BatchExecutor(private val getBatchSize: IntUnaryOperator) : BufferedExecutor {
 
-	private var numUpdates = 0
-	private val queue: Queue<Runnable> = LinkedList()
-	override fun queue(runnable: Runnable) {
-		queue.add(runnable)
-	}
+    private val queue = LinkedHashSet<Runnable>()
+    override fun execute(runnable: Runnable) {
+        logger.log(Level.FINEST, "Adding a runnable")
+        queue.add(runnable)
+    }
 
-	override fun execute() {
-		var num = 0
-		while (queue.isNotEmpty()) {
-			if (num++ < numUpdates) {
-				queue.remove().run()
-			}
-		}
-	}
+    override fun cancel(runnable: Runnable) {
+        queue.remove(runnable)
+    }
+
+    override fun executeNow() {
+        val batchSize = getBatchSize(queue.size)
+        var numExecuted = 0
+        logger.logIf(Level.FINER) { "Execution batch of size $batchSize from queue size ${queue.size}" }
+        val iterator = queue.iterator()
+        while (iterator.hasNext() || numExecuted++ < batchSize) {
+            try {
+                iterator.next().run()
+            } finally {
+                iterator.remove()
+            }
+        }
+        logger.logIf(Level.FINEST) { "Finished actually executing $numExecuted" }
+    }
+
+    private companion object {
+        @JvmStatic
+        private val logger = Logger.getLogger(BatchExecutor::class.java.name)!!
+    }
 }
+

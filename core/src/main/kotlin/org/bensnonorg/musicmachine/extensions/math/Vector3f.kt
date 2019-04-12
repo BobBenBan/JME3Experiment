@@ -10,18 +10,18 @@ infix fun Vector3f.set(value: Vector3f): Vector3f = this.set(value)
 operator fun Vector3f.unaryMinus(): Vector3f = this.negate()
 operator fun Vector3f.unaryPlus(): Vector3f = this.clone()
 operator fun Vector3f.minusAssign(it: Vector3f) {
-	this.subtractLocal(it)
+    this.subtractLocal(it)
 }
 
 operator fun Vector3f.plusAssign(it: Vector3f) {
-	this.addLocal(it)
+    this.addLocal(it)
 }
 
 operator fun Vector3f.timesAssign(it: Float) {
-	this.multLocal(it)
+    this.multLocal(it)
 }
 
 operator fun Vector3f.divAssign(it: Float) {
-	this.multLocal(1 / it)
+    this.multLocal(1 / it)
 }
 

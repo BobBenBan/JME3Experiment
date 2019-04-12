@@ -12,25 +12,25 @@ import com.jme3.texture.Texture
 
 @Deprecated(message = "Old Construct")
 class SimpleTerrainQuad internal constructor(heightMap: HeightMap, patchSize: Int) :
-	TerrainQuad("SimpleTerrainQuad", patchSize, heightMap.size + 1, heightMap.heightMap) {
+    TerrainQuad("SimpleTerrainQuad", patchSize, heightMap.size + 1, heightMap.heightMap) {
 
-	fun addLODControl(camera: Camera) {
-		this.addControl(TerrainLodControl(this, camera))
-	}
+    fun addLODControl(camera: Camera) {
+        this.addControl(TerrainLodControl(this, camera))
+    }
 
-	fun addRigidBodyControl(): RigidBodyControl {
-		val rigidBodyControl = RigidBodyControl(0f)
-		this.addControl(rigidBodyControl)
-		return rigidBodyControl
-	}
+    fun addRigidBodyControl(): RigidBodyControl {
+        val rigidBodyControl = RigidBodyControl(0f)
+        this.addControl(rigidBodyControl)
+        return rigidBodyControl
+    }
 }
 
 fun Texture.createSimpleTerrainQuad(patchSize: Int, material: Material): SimpleTerrainQuad {
-	val heightMap = ImageBasedHeightMap(this.image)
-	heightMap.load()
-	return SimpleTerrainQuad(heightMap, patchSize).apply {
-		this.material = material
-		shadowMode = RenderQueue.ShadowMode.Receive
-	}
+    val heightMap = ImageBasedHeightMap(this.image)
+    heightMap.load()
+    return SimpleTerrainQuad(heightMap, patchSize).apply {
+        this.material = material
+        shadowMode = RenderQueue.ShadowMode.Receive
+    }
 }
 

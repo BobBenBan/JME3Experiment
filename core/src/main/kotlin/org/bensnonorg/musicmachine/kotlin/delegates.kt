@@ -11,18 +11,18 @@ private object EMPTY
 @Suppress("UNCHECKED_CAST")
 class InitOnceProperty<T> internal constructor() : ReadWriteProperty<Any, T> {
 
-	private var theVal: Any? = EMPTY
-	override fun getValue(thisRef: Any, property: KProperty<*>): T {
-		if (!isInitialized) throw IllegalStateException("Value is not initialized")
-		else return theVal as T
-	}
+    private var theVal: Any? = EMPTY
+    override fun getValue(thisRef: Any, property: KProperty<*>): T {
+        if (!isInitialized) throw IllegalStateException("Value is not initialized")
+        else return theVal as T
+    }
 
-	override fun setValue(thisRef: Any, property: KProperty<*>, value: T) {
-		if (isInitialized) throw IllegalStateException("Value is already initialized")
-		theVal = value
-	}
+    override fun setValue(thisRef: Any, property: KProperty<*>, value: T) {
+        if (isInitialized) throw IllegalStateException("Value is already initialized")
+        theVal = value
+    }
 
-	val isInitialized get() = theVal !== EMPTY
+    val isInitialized get() = theVal !== EMPTY
 }
 
 /** Creates a [InitOnceProperty] */
@@ -33,15 +33,15 @@ fun <T> initOnce() = InitOnceProperty<T>()
  */
 open class RunOnce(private val block: () -> Unit) {
 
-	var hasRun = false
-		private set
+    var hasRun = false
+        private set
 
-	operator fun invoke() {
-		if (!hasRun) {
-			hasRun = true
-			block()
-		}
-	}
+    operator fun invoke() {
+        if (!hasRun) {
+            hasRun = true
+            block()
+        }
+    }
 }
 
 /**
@@ -49,5 +49,5 @@ open class RunOnce(private val block: () -> Unit) {
  */
 class Factory<R, T>(private val producer: () -> T) : ReadOnlyProperty<R, T> {
 
-	override fun getValue(thisRef: R, property: KProperty<*>): T = producer()
+    override fun getValue(thisRef: R, property: KProperty<*>): T = producer()
 }
