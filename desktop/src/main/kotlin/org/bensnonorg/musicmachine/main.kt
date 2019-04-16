@@ -2,11 +2,12 @@
 
 package org.bensnonorg.musicmachine
 
-import org.bensnonorg.musicmachine.exp.BeepingTeapots
-import org.bensnonorg.musicmachine.scene.NotifyingNode
+import com.jme3.scene.Node
 
 fun main(args: Array<String>) {
-    var node: NotifyingNode? = null
-
-    BeepingTeapots().start()
+    println("hi");
+    val node = Node()
+    val children = node.children
+    println(children)
+//    BeepingTeapots().start()
 }

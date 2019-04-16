@@ -1,0 +1,5 @@
+<root>
+    <item name='com.jme3.scene.Node children'>
+        <annotation name='org.jetbrains.annotations.NotNull' />
+    </item>
+</root>

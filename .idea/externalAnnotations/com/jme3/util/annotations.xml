@@ -1,0 +1,8 @@
+<root>
+    <item name='com.jme3.util.SafeArrayList java.util.Iterator&lt;E&gt; iterator()'>
+        <annotation name='java.lang.Deprecated' />
+    </item>
+    <item name='com.jme3.util.SafeArrayList java.util.ListIterator&lt;E&gt; listIterator()'>
+        <annotation name='java.lang.Deprecated' />
+    </item>
+</root>
